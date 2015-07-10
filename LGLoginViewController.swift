@@ -26,6 +26,7 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate {
     @IBAction func loginAction(sender: UIButton) {
         var username:String = self.userName.text
         var passwd:String = self.password.text
+        var urlLogin:String = "http://closefriend.sinaapp.com/Oauth/Oauth/login"
         
         self.performSegueWithIdentifier("loginSuccess",sender:self)
     }
