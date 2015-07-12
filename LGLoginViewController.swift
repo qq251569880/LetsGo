@@ -4,13 +4,14 @@
 //
 //  Created by 张宏台 on 15/7/9.
 //  Copyright (c) 2015年 张宏台. All rights reserved.
-//
-
+////Users/zhanghongdai/Documents/workspace/LetsGo/LetsGo/LGLoginViewController.swift:38:9: 'NSURLRequest' does not have a member named 'setHTTPMethod'
 
 import UIKit
+import Foundation
 
-class LGLoginViewController: UIViewController,UITextFieldDelegate {
+class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDelegate {
     
+    @IBOutlet weak var tipInfo: UILabel!
     @IBOutlet weak var userName: UITextField!
     @IBOutlet weak var password: UITextField!
     override func viewDidLoad() {
@@ -26,8 +27,20 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate {
     @IBAction func loginAction(sender: UIButton) {
         var username:String = self.userName.text
         var passwd:String = self.password.text
+        //http://closefriend.sinaapp.com/Oauth/Oauth/login
+        let url:String = "http://closefriend.sinaapp.com/Oauth/Oauth/login"
+        var postString:String = "username=\(username)&password=\(passwd)";
         
-        self.performSegueWithIdentifier("loginSuccess",sender:self)
+        var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+        var nsurl:NSURL = NSURL(string:url)!;
+        var req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
+        req.HTTPMethod="POST";
+        var postData:NSMutableData = NSMutableData();
+        postData.appendData(postString.dataUsingEncoding(NSUTF8StringEncoding)!);
+        req.HTTPBody = postData;
+        var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
+        dataTask.resume()
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject? ){
         
@@ -69,5 +82,38 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate {
     {
         self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     }
+    func URLSession(session: NSURLSession!, dataTask: NSURLSessionDataTask!, didReceiveData data: NSData!){
+        var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
+        println(tmp)
+/*
+        var mdata:Dictionary<String,String> = Dictionary()
+        mdata["aa"]="11";
+        mdata["bb"] = "22";
+        var writeError1 = NSErrorPointer()
+        var jsons  = NSJSONSerialization.dataWithJSONObject(mdata, options: NSJSONWritingOptions.PrettyPrinted, error: writeError1)
+        var tmp1:NSString=NSString(data:jsons! ,encoding:NSUTF8StringEncoding)!
+        println(tmp1)
+        */
+        var writeError = NSErrorPointer()
+        var jsons  = NSJSONSerialization.JSONObjectWithData(data ,options:NSJSONReadingOptions.MutableLeaves,error:writeError) as? NSDictionary
 
+        
+        if (writeError != nil ){
+            println(writeError.debugDescription)
+        }else if( jsons == nil ){
+            println("JSON error")
+        }else{
+            var status: AnyObject? = jsons!.objectForKey("head")?.objectForKey("status");
+            if let s:Int = (status as? Int) {
+                if(s == 0){
+                    self.performSegueWithIdentifier("loginSuccess",sender:self)
+                }else{
+                    tipInfo.text = "用户名密码错误";
+                }
+            }else{
+                tipInfo.text = "登录失败"
+            }
+        }
+
+    }
 }
