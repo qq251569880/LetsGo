@@ -1,35 +1,46 @@
 //
-//  LGLoginViewController.swift
+//  LGRegisterViewController.swift
 //  LetsGo
 //
-//  Created by 张宏台 on 15/7/9.
+//  Created by 张宏台 on 15/7/15.
 //  Copyright (c) 2015年 张宏台. All rights reserved.
-////Users/zhanghongdai/Documents/workspace/LetsGo/LetsGo/LGLoginViewController.swift:38:9: 'NSURLRequest' does not have a member named 'setHTTPMethod'
+//
 
 import UIKit
 import Foundation
 
-class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDelegate {
-    
-    @IBOutlet weak var tipInfo: UILabel!
-    @IBOutlet weak var userName: UITextField!
-    @IBOutlet weak var password: UITextField!
+
+class LGRegisterViewController: UIViewController,UITextFieldDelegate,NSURLSessionDelegate {
+
+    @IBOutlet weak var username: UITextField!
+    @IBOutlet weak var passwd: UITextField!
+    @IBOutlet weak var passwd2: UITextField!
+
+    @IBOutlet weak var tipinfo: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
     
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    @IBAction func loginAction(sender: UIButton) {
-        var username:String = self.userName.text
-        var passwd:String = self.password.text
+    @IBAction func backLoginAction(sender: AnyObject) {
+        self.dismissViewControllerAnimated(true,completion:nil)
+    }
+    @IBAction func RegisterAction(sender: UIButton) {
+        var username:String = self.username.text
+        var password:String = self.passwd.text
+        var password2:String = self.passwd2.text
+        if(password != password2){
+            tipinfo.text = "两次密码输入不同";
+            return;
+        }
         //http://closefriend.sinaapp.com/Oauth/Oauth/login
-        let url:String = "http://closefriend.sinaapp.com/Oauth/Oauth/login"
-        var postString:String = "username=\(username)&password=\(passwd)";
+        let url:String = "http://closefriend.sinaapp.com/Oauth/Oauth/register"
+        var postString:String = "username=\(username)&password=\(password)";
         
         var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
         var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
@@ -41,20 +52,14 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
         req.HTTPBody = postData;
         var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
         dataTask.resume()
-    }
-    @IBAction func registerAction(sender: AnyObject) {
-        self.performSegueWithIdentifier("register",sender:self)
-
+        
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject? ){
         
-        if (segue.identifier == "loginSuccess") {
+        if (segue.identifier == "registerSuccess") {
             var mainController:LGMainViewController  = segue.destinationViewController as LGMainViewController;
             
             println("Chat classify is \(mainController)")
-        }else{
-            var regController:LGRegisterViewController  = segue.destinationViewController as LGRegisterViewController;
-
         }
     }
     //当用户按下return键或者按回车键，keyboard消失
@@ -92,7 +97,7 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
     func URLSession(session: NSURLSession!, dataTask: NSURLSessionDataTask!, didReceiveData data: NSData!){
         var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
         println(tmp)
-/*
+        /*
         var mdata:Dictionary<String,String> = Dictionary()
         mdata["aa"]="11";
         mdata["bb"] = "22";
@@ -103,7 +108,7 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
         */
         var writeError = NSErrorPointer()
         var jsons  = NSJSONSerialization.JSONObjectWithData(data ,options:NSJSONReadingOptions.MutableLeaves,error:writeError) as? NSDictionary
-
+        
         
         if (writeError != nil ){
             println(writeError.debugDescription)
@@ -113,14 +118,14 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
             var status: AnyObject? = jsons!.objectForKey("head")?.objectForKey("status");
             if let s:Int = (status as? Int) {
                 if(s == 0){
-                    self.performSegueWithIdentifier("loginSuccess",sender:self)
+                    self.performSegueWithIdentifier("registerSuccess",sender:self)
                 }else{
-                    tipInfo.text = "用户名密码错误";
+                    tipinfo.text = "用户名被占用 err=\(s)";
                 }
             }else{
-                tipInfo.text = "登录失败"
+                tipinfo.text = "注册失败"
             }
         }
-
+        
     }
 }
