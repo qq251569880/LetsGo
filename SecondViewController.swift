@@ -12,12 +12,14 @@ import Foundation
 class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDelegate,NSURLSessionDelegate{
     @IBOutlet weak var sportsList: UITableView!
     var sportsData:[LGSportInfo] = [LGSportInfo]()
-    
+    var sportId = 0;
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        sportsList.delegate = self
+        sportsList.dataSource = self
         var url:String = "http://closefriend.sinaapp.com/Sport/List/sportlist";
-        var postString:String = "sporttype=1";
+        var postString:String = "sporttype=1&fields=title,tpcount,nindex,username";
         
         var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
         var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
@@ -29,8 +31,12 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         req.HTTPBody = postData;
         var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
         dataTask.resume()
-    }
 
+    }
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        sportsList.reloadData()
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -54,8 +60,8 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
 
         println(" room \(sport!.sportName) add to \(indexPath.row)")
         cell!.sportName.text = "\(sport!.sportName)"
-        cell!.sportContent.text =  "\(sport!.sportContent)"
-        
+        cell!.sportCreator.text =  "\(sport!.creater)"
+        cell!.sportMember.text = "\(sport!.sportMember)"
         return cell!
         
     }
@@ -63,7 +69,7 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         var listCount:Int = 0
 
         listCount = sportsData.count
-
+        println("count = \(listCount)")
         return listCount
     }
     
@@ -77,10 +83,10 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
     func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!){
         //start a Chat
         var sportName:String? = sportsData[indexPath!.row].sportName
-        var sportid:Int = sportsData[indexPath!.row].id
+        sportId = sportsData[indexPath!.row].id
         println("Now switch to \(sportName)")
         
-        self.performSegueWithIdentifier("chatting",sender:self)
+        self.performSegueWithIdentifier("showdetail",sender:self)
         
     }
     //每一行的高度
@@ -89,12 +95,12 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject? ){
         
-        if (segue.identifier == "loginSuccess") {
-            var mainController:LGMainViewController  = segue.destinationViewController as LGMainViewController;
-            
-            println("Chat classify is \(mainController)")
+        if (segue.identifier == "showdetail") {
+            var detailController:LGSportDetailController  = segue.destinationViewController as LGSportDetailController;
+            detailController.sportId = sportId;
+            println("Chat classify is \(detailController)")
         }else{
-            var regController:LGRegisterViewController  = segue.destinationViewController as LGRegisterViewController;
+            println(segue.identifier)
             
         }
     }
@@ -102,31 +108,36 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
         println(tmp)
 
-        var writeError = NSErrorPointer()
-        var jsons  = NSJSONSerialization.JSONObjectWithData(data ,options:NSJSONReadingOptions.MutableContainers,error:writeError) as? NSDictionary
+        let json = JSON(data: data,options: NSJSONReadingOptions.MutableContainers)
         
-        
-        if (writeError != nil ){
-            println(writeError.debugDescription)
-        }else if( jsons == nil ){
-            println("JSON error")
-        }else{
-            var status: AnyObject? = jsons!.objectForKey("head")?.objectForKey("status");
-            if let s:Int = (status as? Int) {
-                if(s == 0){
-                    var body:AnyObject? = jsons!.objectForKey("body")
-                    let sports = body as? [Dictionary<String,String>];
-                    for item:Dictionary<String,String> in sports! {
-                        println(item)
+        if let status = json["head"]["status"].uInt{
+            if status == 0 {
+                if let sports = json["body"]["list"].array {
+                    for sport in sports{
+                        println(sport)
+                        var sportData:LGSportInfo = LGSportInfo();
+                        if let name = sport["title"].string{
+                            sportData.sportName = name
+                        }
+                        if let id = sport["nindex"].string?.toInt() {
+                            sportData.id  = id
+                            
+                        }
+                        if let creater = sport["username"].string{
+                            sportData.creater = creater
+                        }
+                        if let number = sport["tpcount"].string?.toInt(){
+                            sportData.sportMember = number
+                        }
+                        sportsData.append(sportData);
                     }
-                }else{
-                    LGAlert("tip", "用户名密码错误");
                 }
             }else{
-                LGAlert("tip","登录失败");
+                LGAlert("tip","获取列表失败");
             }
         }
-        
+        sportsList.reloadData()
+
     }
 
 }

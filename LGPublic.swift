@@ -21,6 +21,7 @@ struct LGSportInfo{
     var sportContent:String = "";
     var creater:String = "";
     var sportType:Int = 0;
+    var sportMember = 0;
 }
 func LGAlert(title:String,content:String){
     let alert = UIAlertView()

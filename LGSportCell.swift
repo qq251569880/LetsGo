@@ -14,14 +14,14 @@ import UIKit
 class LGSportListCell:UITableViewCell {
     
     var sportName:UILabel
-    var sportContent:UILabel
-    var roomImage:UIImageView
+    var sportCreator:UILabel
+    var sportMember:UILabel
     
     init(newStyle:UITableViewCellStyle, newReuseIdentifier:NSString) {
         
         sportName = UILabel(frame:CGRectZero )
-        sportContent = UILabel(frame:CGRectZero)
-        roomImage = UIImageView(frame:CGRectZero)
+        sportCreator = UILabel(frame:CGRectZero)
+        sportMember = UILabel(frame:CGRectZero)
         
         super.init(style:newStyle, reuseIdentifier:newReuseIdentifier)
         
@@ -32,17 +32,22 @@ class LGSportListCell:UITableViewCell {
         sportName.backgroundColor = UIColor.clearColor()
         contentView.addSubview(sportName)
         
-        //房间简介
-        sportContent.frame = CGRectMake(10, 35, 225, 20)
-        sportContent.textColor = UIColor.lightGrayColor()
-        sportContent.textAlignment = .Left
-        sportContent.font = UIFont.systemFontOfSize(12.0)
-        sportContent.backgroundColor = UIColor.clearColor()
-        contentView.addSubview(sportContent)
+        //房间创建者
+        sportCreator.frame = CGRectMake(10, 35, 225, 20)
+        sportCreator.textColor = UIColor.lightGrayColor()
+        sportCreator.textAlignment = .Left
+        sportCreator.font = UIFont.systemFontOfSize(12.0)
+        sportCreator.backgroundColor = UIColor.clearColor()
+        contentView.addSubview(sportCreator)
         
-        //操作按钮
+        //活动参与人数
         
-        contentView.addSubview(roomImage)
+        sportMember.frame = CGRectMake(255, 10, 285, 20)
+        sportMember.textColor = UIColor.lightTextColor()
+        sportMember.textAlignment = .Left
+        sportMember.font = UIFont.systemFontOfSize(10.0)
+        sportMember.backgroundColor = UIColor.clearColor()
+        contentView.addSubview(sportMember)
         
     }
     required init(coder aDecoder: NSCoder) {
