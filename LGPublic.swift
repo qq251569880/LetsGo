@@ -30,3 +30,8 @@ func LGAlert(title:String,content:String){
     alert.addButtonWithTitle("Ok")
     alert.show()
 }
+enum LGError: ErrorType {
+    case jsonPutErr // 组织Json出错
+    case jsonGetErr // 解析Json出错
+    case otherErr // 其他错误
+}

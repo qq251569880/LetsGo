@@ -25,21 +25,21 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
     }
     
     @IBAction func loginAction(sender: UIButton) {
-        var username:String = self.userName.text
-        var passwd:String = self.password.text
+        let username:String = self.userName.text!
+        let passwd:String = self.password.text!
 
         let url:String = "http://closefriend.sinaapp.com/Oauth/Oauth/login"
-        var postString:String = "username=\(username)&password=\(passwd)";
+        let postString:String = "username=\(username)&password=\(passwd)";
         
-        var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
-        var nsurl:NSURL = NSURL(string:url)!;
-        var req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
+        let  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+        let nsurl:NSURL = NSURL(string:url)!;
+        let req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
         req.HTTPMethod="POST";
-        var postData:NSMutableData = NSMutableData();
+        let postData:NSMutableData = NSMutableData();
         postData.appendData(postString.dataUsingEncoding(NSUTF8StringEncoding)!);
         req.HTTPBody = postData;
-        var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
+        let dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
         dataTask.resume()
     }
     @IBAction func registerAction(sender: AnyObject) {
@@ -49,11 +49,11 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject? ){
         
         if (segue.identifier == "loginSuccess") {
-            var mainController:LGMainViewController  = segue.destinationViewController as LGMainViewController;
+            let mainController:LGMainViewController  = segue.destinationViewController as! LGMainViewController;
             
-            println("Chat classify is \(mainController)")
+            print("Chat classify is \(mainController)")
         }else{
-            var regController:LGRegisterViewController  = segue.destinationViewController as LGRegisterViewController;
+            //var regController:LGRegisterViewController  = segue.destinationViewController as! LGRegisterViewController;
 
         }
     }
@@ -69,10 +69,10 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
     //开始编辑输入框的时候，软键盘出现，执行此事件
     func textFieldDidBeginEditing(textField:UITextField)
     {
-        var frame:CGRect = textField.frame;
-        var offset:CGFloat = frame.origin.y + 32 - (self.view.frame.size.height - 216.0);//键盘高度216
+        let frame:CGRect = textField.frame;
+        let offset:CGFloat = frame.origin.y + 32 - (self.view.frame.size.height - 216.0);//键盘高度216
         
-        var animationDuration:NSTimeInterval  = 0.30;
+        let animationDuration:NSTimeInterval  = 0.30;
         UIView.beginAnimations("ResizeForKeyboard",context:nil);
         UIView.setAnimationDuration(animationDuration)
         
@@ -90,8 +90,8 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
         self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     }
     func URLSession(session: NSURLSession!, dataTask: NSURLSessionDataTask!, didReceiveData data: NSData!){
-        var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
-        println(tmp)
+        let tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
+        print(tmp)
 /*
         var mdata:Dictionary<String,String> = Dictionary()
         mdata["aa"]="11";
@@ -102,15 +102,20 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
         println(tmp1)
         */
         var writeError = NSErrorPointer()
-        var jsons  = NSJSONSerialization.JSONObjectWithData(data ,options:NSJSONReadingOptions.MutableLeaves,error:writeError) as? NSDictionary
+        var jsons:NSDictionary?
+        do{
+            jsons = try NSJSONSerialization.JSONObjectWithData(data ,options:NSJSONReadingOptions.MutableLeaves) as? NSDictionary
+        }catch{
+            
+        }
 
         
         if (writeError != nil ){
-            println(writeError.debugDescription)
+            print(writeError.debugDescription)
         }else if( jsons == nil ){
-            println("JSON error")
+            print("JSON error")
         }else{
-            var status: AnyObject? = jsons!.objectForKey("head")?.objectForKey("status");
+            let status: AnyObject? = jsons!.objectForKey("head")?.objectForKey("status");
             if let s:Int = (status as? Int) {
                 if(s == 0){
                     self.performSegueWithIdentifier("loginSuccess",sender:self)

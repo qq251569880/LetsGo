@@ -18,18 +18,18 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         // Do any additional setup after loading the view, typically from a nib.
         sportsList.delegate = self
         sportsList.dataSource = self
-        var url:String = "http://closefriend.sinaapp.com/Sport/List/sportlist";
-        var postString:String = "sporttype=1&fields=title,tpcount,nindex,username";
+        let url:String = "http://closefriend.sinaapp.com/Sport/List/sportlist";
+        let postString:String = "sporttype=1&fields=title,tpcount,nindex,username";
         
-        var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
-        var nsurl:NSURL = NSURL(string:url)!;
-        var req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
+        let  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+        let nsurl:NSURL = NSURL(string:url)!;
+        let req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
         req.HTTPMethod="POST";
-        var postData:NSMutableData = NSMutableData();
+        let postData:NSMutableData = NSMutableData();
         postData.appendData(postString.dataUsingEncoding(NSUTF8StringEncoding)!);
         req.HTTPBody = postData;
-        var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
+        let dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
         dataTask.resume()
 
     }
@@ -53,12 +53,12 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
             cell = LGSportListCell(newStyle:.Subtitle,newReuseIdentifier:identifier)
         }else
         {
-            println("cell is nil")
+            print("cell is nil")
         }
         sport = sportsData[indexPath.row]
             //cell!.operateBtn.titleLabel.text = "离开"
 
-        println(" room \(sport!.sportName) add to \(indexPath.row)")
+        print(" room \(sport!.sportName) add to \(indexPath.row)")
         cell!.sportName.text = "\(sport!.sportName)"
         cell!.sportCreator.text =  "\(sport!.creater)"
         cell!.sportMember.text = "\(sport!.sportMember)"
@@ -69,7 +69,7 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         var listCount:Int = 0
 
         listCount = sportsData.count
-        println("count = \(listCount)")
+        print("count = \(listCount)")
         return listCount
     }
     
@@ -80,11 +80,11 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
         }
     }
     //UITableViewDelegate协议实现
-    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!){
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         //start a Chat
-        var sportName:String? = sportsData[indexPath!.row].sportName
-        sportId = sportsData[indexPath!.row].id
-        println("Now switch to \(sportName)")
+        let sportName:String? = sportsData[indexPath.row].sportName
+        sportId = sportsData[indexPath.row].id
+        print("Now switch to \(sportName)")
         
         self.performSegueWithIdentifier("showdetail",sender:self)
         
@@ -96,17 +96,17 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject? ){
         
         if (segue.identifier == "showdetail") {
-            var detailController:LGSportDetailController  = segue.destinationViewController as LGSportDetailController;
+            let detailController:LGSportDetailController  = segue.destinationViewController as! LGSportDetailController;
             detailController.sportId = sportId;
-            println("Chat classify is \(detailController)")
+            print("Chat classify is \(detailController)")
         }else{
-            println(segue.identifier)
+            print(segue.identifier)
             
         }
     }
     func URLSession(session: NSURLSession!, dataTask: NSURLSessionDataTask!, didReceiveData data: NSData!){
-        var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
-        println(tmp)
+        let tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
+        print(tmp)
 
         let json = JSON(data: data,options: NSJSONReadingOptions.MutableContainers)
         
@@ -114,26 +114,26 @@ class SecondViewController: UIViewController,UITableViewDataSource,UITableViewDe
             if status == 0 {
                 if let sports = json["body"]["list"].array {
                     for sport in sports{
-                        println(sport)
+                        print(sport)
                         var sportData:LGSportInfo = LGSportInfo();
                         if let name = sport["title"].string{
                             sportData.sportName = name
                         }
-                        if let id = sport["nindex"].string?.toInt() {
+                        if let id = Int((sport["nindex"].string)!) {
                             sportData.id  = id
                             
                         }
                         if let creater = sport["username"].string{
                             sportData.creater = creater
                         }
-                        if let number = sport["tpcount"].string?.toInt(){
+                        if let number = Int((sport["tpcount"].string)!){
                             sportData.sportMember = number
                         }
                         sportsData.append(sportData);
                     }
                 }
             }else{
-                LGAlert("tip","获取列表失败");
+                LGAlert("tip",content: "获取列表失败");
             }
         }
         sportsList.reloadData()

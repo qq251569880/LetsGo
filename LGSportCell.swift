@@ -23,7 +23,7 @@ class LGSportListCell:UITableViewCell {
         sportCreator = UILabel(frame:CGRectZero)
         sportMember = UILabel(frame:CGRectZero)
         
-        super.init(style:newStyle, reuseIdentifier:newReuseIdentifier)
+        super.init(style:newStyle, reuseIdentifier:newReuseIdentifier as String)
         
         //房间名
         sportName.frame = CGRectMake(10, 5, 225, 30)
@@ -50,7 +50,7 @@ class LGSportListCell:UITableViewCell {
         contentView.addSubview(sportMember)
         
     }
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 

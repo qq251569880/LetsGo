@@ -21,18 +21,18 @@ class LGSportDetailController: UIViewController,NSURLSessionDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        var url:String = "http://closefriend.sinaapp.com/Sport/List/sportdetail";
-        var postString:String = "id=\(sportId)";
+        let url:String = "http://closefriend.sinaapp.com/Sport/List/sportdetail";
+        let postString:String = "id=\(sportId)";
         
-        var  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        var inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
-        var nsurl:NSURL = NSURL(string:url)!;
-        var req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
+        let  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+        let nsurl:NSURL = NSURL(string:url)!;
+        let req:NSMutableURLRequest = NSMutableURLRequest(URL:nsurl);
         req.HTTPMethod="POST";
-        var postData:NSMutableData = NSMutableData();
+        let postData:NSMutableData = NSMutableData();
         postData.appendData(postString.dataUsingEncoding(NSUTF8StringEncoding)!);
         req.HTTPBody = postData;
-        var dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
+        let dataTask:NSURLSessionDataTask = inProcessSession.dataTaskWithRequest(req)
         dataTask.resume()
     }
     
@@ -41,8 +41,8 @@ class LGSportDetailController: UIViewController,NSURLSessionDelegate {
         // Dispose of any resources that can be recreated.
     }
     func URLSession(session: NSURLSession!, dataTask: NSURLSessionDataTask!, didReceiveData data: NSData!){
-        var tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
-        println(tmp)
+        let tmp:NSString=NSString(data:data ,encoding:NSUTF8StringEncoding)!
+        print(tmp)
         
         let json = JSON(data: data,options: NSJSONReadingOptions.MutableContainers)
         
