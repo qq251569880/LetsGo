@@ -29,7 +29,8 @@ class LGLoginViewController: UIViewController,UITextFieldDelegate,NSURLSessionDe
         let passwd:String = self.password.text!
 
         let url:String = "http://closefriend.sinaapp.com/Oauth/Oauth/login"
-        let postString:String = "username=\(username)&password=\(passwd)";
+        let dev_id=UIDevice.currentDevice().identifierForVendor?.UUIDString;
+        let postString:String = "username=\(username)&password=\(passwd)&device=\(dev_id)&device_type=2";
         
         let  sessionConfig:NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
         let inProcessSession = NSURLSession(configuration:sessionConfig, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
